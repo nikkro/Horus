@@ -24,9 +24,15 @@ public class FileCabinet implements Cabinet {
                 .findFirst();
     }
 
+    /**
+     * @return a list of folders matching the specified size, or an empty list if the size is invalid
+     */
     @Override
     public List<Folder> findFoldersBySize(String size) {
-        return List.of();
+        return !isFolderSizeValid(size) ? Collections.emptyList() :
+            getAllFoldersStream()
+                .filter(folder -> folder.getSize().equals(size))
+                .toList();
     }
 
     @Override
@@ -59,4 +65,9 @@ public class FileCabinet implements Cabinet {
     private boolean isFolderNameValid(String name){
         return name != null && !name.isBlank();
     }
+
+    private boolean isFolderSizeValid(String size){
+        return size != null && !size.isBlank();
+    }
+
 }
