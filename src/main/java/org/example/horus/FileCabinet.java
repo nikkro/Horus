@@ -12,15 +12,14 @@ public class FileCabinet implements Cabinet {
     }
 
 
+
+    /**
+     * @return first folder by name that occurred in stream.
+     * **/
     @Override
     public Optional<Folder> findFolderByName(String name) {
         return !isFolderNameValid(name) ? Optional.empty() :
-            Optional.ofNullable(folders)
-                .stream()
-                .flatMap(List::stream)
-                .flatMap(folder -> folder instanceof MultiFolder
-                    ? Stream.concat(Stream.of(folder), ((MultiFolder) folder).getFolders().stream())
-                    : Stream.of(folder))
+            getAllFoldersStream()
                 .filter(folder -> folder.getName().equals(name))
                 .findFirst();
     }
@@ -33,6 +32,28 @@ public class FileCabinet implements Cabinet {
     @Override
     public int count() {
         return 0;
+    }
+
+    /**
+     * @return a stream of all folders, including nested folders if present.
+     */
+    public Stream<Folder> getAllFoldersStream() {
+        return Optional.ofNullable(folders)
+            .stream()
+            .flatMap(List::stream)
+            .flatMap(this::flattenFolder);
+    }
+
+    /**
+     * @return a stream containing the folder and its nested folders (if apply)
+     */
+    private Stream<Folder> flattenFolder(Folder folder) {
+        if(folder instanceof MultiFolder multiFolder){
+            return Stream.concat(
+                Stream.of(folder),
+                multiFolder.getFolders().stream().flatMap(this::flattenFolder));
+        }
+        return Stream.of(folder);
     }
 
     private boolean isFolderNameValid(String name){
