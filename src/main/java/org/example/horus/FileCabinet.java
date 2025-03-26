@@ -29,7 +29,7 @@ public class FileCabinet implements Cabinet {
     public List<Folder> findFoldersBySize(String size) {
         return !isFolderSizeValid(size) ? Collections.emptyList() :
             getAllFoldersStream()
-                .filter(folder -> folder.getSize().equals(size))
+                .filter(folder -> folder.getSize().equals(FolderSize.valueOf(size.toUpperCase())))
                 .toList();
     }
 
@@ -65,7 +65,7 @@ public class FileCabinet implements Cabinet {
     }
 
     private boolean isFolderSizeValid(String size){
-        return size != null && !size.isBlank();
+        return size != null && !size.isBlank() && FolderSize.isSizeValidValue(size);
     }
 
 }
